@@ -8,22 +8,22 @@ import (
 
 var (
 	AllowedSkew time.Duration
+	NATSUrl     string
 )
 
 func Load() {
 	const defaultSkewSeconds = 10
-
 	val := os.Getenv("GYROSCOPE_ALLOWED_SKEW_SECONDS")
 	if val == "" {
 		AllowedSkew = time.Duration(defaultSkewSeconds) * time.Second
-		return
-	}
-
-	seconds, err := strconv.Atoi(val)
-	if err != nil || seconds < 0 {
+	} else if seconds, err := strconv.Atoi(val); err == nil && seconds >= 0 {
+		AllowedSkew = time.Duration(seconds) * time.Second
+	} else {
 		AllowedSkew = time.Duration(defaultSkewSeconds) * time.Second
-		return
 	}
 
-	AllowedSkew = time.Duration(seconds) * time.Second
+	NATSUrl = os.Getenv("NATS_URL")
+	if NATSUrl == "" {
+		NATSUrl = "nats://localhost:4222"
+	}
 }
